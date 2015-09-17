@@ -1,0 +1,49 @@
+{
+  "name": "laborer",
+  "version": "1.0.0",
+  "description": "Laborer works hard so you do not have to",
+  "main": "laborer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/implydata/laborer.git"
+  },
+  "keywords": [
+    "laborer",
+    "build",
+    "system"
+  ],
+  "author": "Vadim Ogievetsky",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/implydata/laborer/issues"
+  },
+  "homepage": "https://github.com/implydata/laborer#readme",
+  "devDependencies": {
+    "autoprefixer-core": "^5.2.1",
+    "browserify": "~11.0.0",
+    "del": "^1.2.0",
+    "gulp": "^3.9.0",
+    "gulp-cache": "^0.2.10",
+    "gulp-concat": "^2.6.0",
+    "gulp-debug": "^2.0.1",
+    "gulp-foreach": "^0.1.0",
+    "gulp-mocha": "^2.1.2",
+    "gulp-postcss": "^5.1.9",
+    "gulp-replace": "^0.5.3",
+    "gulp-sass": "^2.0.4",
+    "gulp-scss-lint": "^0.2.0",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-tslint": "^3.1.1-beta",
+    "gulp-typescript": "^2.7.6",
+    "gulp-util": "^3.0.6",
+    "gulp-watch": "^4.3.4",
+    "merge-stream": "^1.0.0",
+    "react-tools": "^0.13.3",
+    "typescript": "^1.6.x",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
