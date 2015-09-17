@@ -23,7 +23,7 @@ var typescript = require('typescript');
 
 var mocha = require('gulp-mocha');
 
-var tsLintConfig = require('.tslint');
+var tsLintConfig = require('./tslint');
 var gr = require('./gulp-reporters');
 
 
