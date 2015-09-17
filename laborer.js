@@ -56,6 +56,80 @@ exports.taskStyle = function(styleName) {
 };
 
 
+exports.taskUtilsTypeScript = function() {
+  return function() {
+    var errorTexts = [];
+
+    var sourceFiles = gulp.src(['./src/utils/**/*.ts'])
+      .pipe(tslint({
+        configuration: tsLintConfig
+      }))
+      .pipe(tslint.report(
+        gr.tscLintReporterFactory({
+          errorTexts: errorTexts
+        }),
+        { emitError: false }
+      ));
+
+    var typeFiles = gulp.src(['./typings/**/*.d.ts']);
+
+    return merge(sourceFiles, typeFiles)
+      .pipe(tsc(
+        {
+          typescript: typescript,
+          noImplicitAny: true,
+          noEmitOnError: true,
+          target: 'ES5',
+          module: 'commonjs'
+        },
+        undefined,
+        gr.tscReporterFactory({
+          errorTexts: errorTexts,
+          onFinish: function() { gr.writeErrors('./webstorm/tsc-utils-errors', errorTexts); }
+        })
+      ))
+      .pipe(gulp.dest('./build/utils'));
+  };
+};
+
+
+exports.taskModelsTypeScript = function() {
+  return function() {
+    var errorTexts = [];
+
+    var sourceFiles = gulp.src(['./src/models/**/*.ts'])
+      .pipe(tslint({
+        configuration: tsLintConfig
+      }))
+      .pipe(tslint.report(
+        gr.tscLintReporterFactory({
+          errorTexts: errorTexts
+        }),
+        { emitError: false }
+      ));
+
+    var typeFiles = gulp.src(['./typings/**/*.d.ts']);
+
+    return merge(sourceFiles, typeFiles)
+      .pipe(tsc(
+        {
+          typescript: typescript,
+          noImplicitAny: true,
+          noEmitOnError: true,
+          target: 'ES5',
+          module: 'commonjs'
+        },
+        undefined,
+        gr.tscReporterFactory({
+          errorTexts: errorTexts,
+          onFinish: function() { gr.writeErrors('./webstorm/tsc-models-errors', errorTexts); }
+        })
+      ))
+      .pipe(gulp.dest('./build/models'));
+  };
+};
+
+
 exports.taskClientTypeScript = function(styleName) {
   return function() {
     var errorTexts = [];
@@ -145,61 +219,15 @@ exports.taskServerTypeScript = function() {
 };
 
 
-exports.taskModelsTypeScript = function() {
+var mochaParams = {
+  reporter: 'spec'
+}
+
+exports.taskUtilsTest = function() {
   return function() {
-    var errorTexts = [];
-
-    var sourceFiles = gulp.src(['./src/models/**/*.ts'])
-      .pipe(tslint({
-        configuration: tsLintConfig
-      }))
-      .pipe(tslint.report(
-        gr.tscLintReporterFactory({
-          errorTexts: errorTexts
-        }),
-        { emitError: false }
-      ));
-
-    var typeFiles = gulp.src(['./typings/**/*.d.ts']);
-
-    return merge(sourceFiles, typeFiles)
-      .pipe(tsc(
-        {
-          typescript: typescript,
-          noImplicitAny: true,
-          noEmitOnError: true,
-          target: 'ES5',
-          module: 'commonjs'
-        },
-        undefined,
-        gr.tscReporterFactory({
-          errorTexts: errorTexts,
-          onFinish: function() { gr.writeErrors('./webstorm/tsc-models-errors', errorTexts); }
-        })
-      ))
-      .pipe(gulp.dest('./build/models'));
-  };
-};
-
-
-exports.taskClientTest = function() {
-  return function() {
-    return gulp.src('./build/client/**/*.mocha.js', {read: false})
+    return gulp.src('./build/utils/**/*.mocha.js', {read: false})
       // gulp-mocha needs filepaths so you can't have any plugins before it
-      .pipe(mocha({
-        reporter: 'spec'
-      }));
-  };
-};
-
-
-exports.taskServerTest = function() {
-  return function() {
-    return gulp.src('./build/server/**/*.mocha.js', {read: false})
-      // gulp-mocha needs filepaths so you can't have any plugins before it
-      .pipe(mocha({
-        reporter: 'spec'
-      }));
+      .pipe(mocha(mochaParams));
   };
 };
 
@@ -208,9 +236,25 @@ exports.taskModelsTest = function() {
   return function() {
     return gulp.src('./build/models/**/*.mocha.js', {read: false})
       // gulp-mocha needs filepaths so you can't have any plugins before it
-      .pipe(mocha({
-        reporter: 'spec'
-      }));
+      .pipe(mocha(mochaParams));
+  };
+};
+
+
+exports.taskClientTest = function() {
+  return function() {
+    return gulp.src('./build/client/**/*.mocha.js', {read: false})
+      // gulp-mocha needs filepaths so you can't have any plugins before it
+      .pipe(mocha(mochaParams));
+  };
+};
+
+
+exports.taskServerTest = function() {
+  return function() {
+    return gulp.src('./build/server/**/*.mocha.js', {read: false})
+      // gulp-mocha needs filepaths so you can't have any plugins before it
+      .pipe(mocha(mochaParams));
   };
 };
 
