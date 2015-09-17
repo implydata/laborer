@@ -21,7 +21,7 @@
     "url": "https://github.com/implydata/laborer/issues"
   },
   "homepage": "https://github.com/implydata/laborer#readme",
-  "devDependencies": {
+  "dependencies": {
     "autoprefixer-core": "^5.2.1",
     "browserify": "~11.0.0",
     "del": "^1.2.0",
