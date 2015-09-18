@@ -50,7 +50,7 @@ exports.taskStyle = function(styleName) {
       .pipe(concat(styleName))
       .pipe(gulp.dest('./build/public'))
       .on('finish', function() {
-        gr.writeErrors('./webstorm/style-errors', errorTexts);
+        gr.writeErrors('./webstorm/errors', errorTexts);
       });
   };
 };
@@ -94,7 +94,7 @@ exports.taskClientTypeScript = function(styleName) {
         gr.tscReporterFactory({
           errorTexts: errorTexts,
           fixPath: fixPath,
-          onFinish: function() { gr.writeErrors('./webstorm/tsc-client-errors', errorTexts); }
+          onFinish: function() { gr.writeErrors('./webstorm/errors', errorTexts); }
         })
       ))
       //.pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '../client' }))
@@ -133,7 +133,7 @@ exports.taskServerTypeScript = function() {
         undefined,
         gr.tscReporterFactory({
           errorTexts: errorTexts,
-          onFinish: function() { gr.writeErrors('./webstorm/tsc-server-errors', errorTexts); }
+          onFinish: function() { gr.writeErrors('./webstorm/errors', errorTexts); }
         })
       ))
       .pipe(sourcemaps.write('.', {
