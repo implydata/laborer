@@ -56,91 +56,17 @@ exports.taskStyle = function(styleName) {
 };
 
 
-exports.taskUtilsTypeScript = function() {
-  return function() {
-    var errorTexts = [];
-
-    var sourceFiles = gulp.src(['./src/utils/**/*.ts'])
-      .pipe(tslint({
-        configuration: tsLintConfig
-      }))
-      .pipe(tslint.report(
-        gr.tscLintReporterFactory({
-          errorTexts: errorTexts
-        }),
-        { emitError: false }
-      ));
-
-    var typeFiles = gulp.src(['./typings/**/*.d.ts']);
-
-    return merge(sourceFiles, typeFiles)
-      .pipe(tsc(
-        {
-          typescript: typescript,
-          noImplicitAny: true,
-          noEmitOnError: true,
-          target: 'ES5',
-          module: 'commonjs'
-        },
-        undefined,
-        gr.tscReporterFactory({
-          errorTexts: errorTexts,
-          onFinish: function() { gr.writeErrors('./webstorm/tsc-utils-errors', errorTexts); }
-        })
-      ))
-      .pipe(gulp.dest('./build/utils'));
-  };
-};
-
-
-exports.taskModelsTypeScript = function() {
-  return function() {
-    var errorTexts = [];
-
-    var sourceFiles = gulp.src(['./src/models/**/*.ts'])
-      .pipe(tslint({
-        configuration: tsLintConfig
-      }))
-      .pipe(tslint.report(
-        gr.tscLintReporterFactory({
-          errorTexts: errorTexts
-        }),
-        { emitError: false }
-      ));
-
-    var typeFiles = gulp.src(['./typings/**/*.d.ts']);
-
-    return merge(sourceFiles, typeFiles)
-      .pipe(tsc(
-        {
-          typescript: typescript,
-          noImplicitAny: true,
-          noEmitOnError: true,
-          target: 'ES5',
-          module: 'commonjs'
-        },
-        undefined,
-        gr.tscReporterFactory({
-          errorTexts: errorTexts,
-          onFinish: function() { gr.writeErrors('./webstorm/tsc-models-errors', errorTexts); }
-        })
-      ))
-      .pipe(gulp.dest('./build/models'));
-  };
-};
-
-
 exports.taskClientTypeScript = function(styleName) {
   return function() {
     var errorTexts = [];
 
     function fixPath(str) {
-      return str.replace('/build/client_tmp/', '/src/client/');
+      return str.replace('/build/tmp/', '/src/');
     }
 
-    var sourceFiles = gulp.src(['./src/client/**/*.ts'])
+    var sourceFiles = gulp.src(['./src/{client,common}/**/*.ts'])
       .pipe(gr.jsxFixerFactory())
-      .pipe(gulp.dest('./build/client_tmp/')) // typescript requires actual files on disk, not just in memory
+      .pipe(gulp.dest('./build/tmp/')) // typescript requires actual files on disk, not just in memory
       .pipe(tslint({
         configuration: tsLintConfig
       }))
@@ -172,7 +98,7 @@ exports.taskClientTypeScript = function(styleName) {
         })
       ))
       //.pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '../client' }))
-      .pipe(gulp.dest('./build/client/'));
+      .pipe(gulp.dest('./build/'));
   };
 };
 
@@ -181,7 +107,7 @@ exports.taskServerTypeScript = function() {
   return function() {
     var errorTexts = [];
 
-    var sourceFiles = gulp.src(['./src/server/**/*.ts'])
+    var sourceFiles = gulp.src(['./src/{server,common}/**/*.ts'])
       .pipe(tslint({
         configuration: tsLintConfig
       }))
@@ -214,7 +140,7 @@ exports.taskServerTypeScript = function() {
         includeContent: false,
         sourceRoot: '../../src/server'
       }))
-      .pipe(gulp.dest('./build/server'));
+      .pipe(gulp.dest('./build'));
   };
 };
 
