@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/implydata/laborer#readme",
   "dependencies": {
-    "autoprefixer-core": "6.0.1",
+    "autoprefixer": "^6.0.3",
     "browserify": "11.1.0",
     "del": "2.0.2",
     "gulp": "3.9.0",
