@@ -56,7 +56,8 @@ exports.taskStyle = function(styleName) {
 };
 
 
-exports.taskClientTypeScript = function(styleName) {
+exports.taskClientTypeScript = function(opt) {
+  var declaration = opt.declaration || false;
   return function() {
     var errorTexts = [];
 
@@ -88,7 +89,8 @@ exports.taskClientTypeScript = function(styleName) {
           noImplicitAny: true,
           noEmitOnError: true,
           target: 'ES5',
-          module: 'commonjs'
+          module: 'commonjs',
+          declaration: declaration
         },
         undefined,
         gr.tscReporterFactory({
@@ -103,7 +105,8 @@ exports.taskClientTypeScript = function(styleName) {
 };
 
 
-exports.taskServerTypeScript = function() {
+exports.taskServerTypeScript = function(opt) {
+  var declaration = opt.declaration || false;
   return function() {
     var errorTexts = [];
 
@@ -128,7 +131,8 @@ exports.taskServerTypeScript = function() {
           noImplicitAny: true,
           noEmitOnError: true,
           target: 'ES5',
-          module: 'commonjs'
+          module: 'commonjs',
+          declaration: declaration
         },
         undefined,
         gr.tscReporterFactory({
