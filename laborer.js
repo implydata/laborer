@@ -81,7 +81,7 @@ exports.taskClientTypeScript = function(opt) {
 
     var typeFiles = gulp.src(['./typings/**/*.d.ts']);
 
-    return merge(sourceFiles, typeFiles)
+    var compiled = merge(sourceFiles, typeFiles)
       //.pipe(sourcemaps.init())
       .pipe(tsc(
         {
@@ -98,9 +98,17 @@ exports.taskClientTypeScript = function(opt) {
           fixPath: fixPath,
           onFinish: function() { gr.writeErrors('./webstorm/errors', errorTexts); }
         })
-      ))
+      ));
       //.pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '../client' }))
-      .pipe(gulp.dest('./build/'));
+
+    if (declaration) {
+      return merge([
+        compiled.dts.pipe(gulp.dest('./build')),
+        compiled.js.pipe(gulp.dest('./build'))
+      ])
+    } else {
+      return compiled.pipe(gulp.dest('./build'));
+    }
   };
 };
 
@@ -123,8 +131,8 @@ exports.taskServerTypeScript = function(opt) {
 
     var typeFiles = gulp.src(['./typings/**/*.d.ts']);
 
-    return merge(sourceFiles, typeFiles)
-      .pipe(sourcemaps.init())
+    var compiled = merge(sourceFiles, typeFiles)
+      //.pipe(sourcemaps.init())
       .pipe(tsc(
         {
           typescript: typescript,
@@ -139,12 +147,20 @@ exports.taskServerTypeScript = function(opt) {
           errorTexts: errorTexts,
           onFinish: function() { gr.writeErrors('./webstorm/errors', errorTexts); }
         })
-      ))
-      .pipe(sourcemaps.write('.', {
-        includeContent: false,
-        sourceRoot: '../../src/server'
-      }))
-      .pipe(gulp.dest('./build'));
+      ));
+      //.pipe(sourcemaps.write('.', {
+      //  includeContent: false,
+      //  sourceRoot: '../../src/server'
+      //}));
+
+    if (declaration) {
+      return merge([
+        compiled.dts.pipe(gulp.dest('./build')),
+        compiled.js.pipe(gulp.dest('./build'))
+      ])
+    } else {
+      return compiled.pipe(gulp.dest('./build'));
+    }
   };
 };
 
@@ -191,7 +207,7 @@ exports.taskServerTest = function() {
 
 exports.taskClientBundle = function() {
   return function() {
-    return gulp.src('./build/client/*.js')
+    return gulp.src('./build/client/*-main.js')
       .pipe(foreach(function(stream, file) {
         // From: https://github.com/gulpjs/gulp/blob/master/docs/recipes/browserify-uglify-sourcemap.md
         var b = browserify({
@@ -200,7 +216,7 @@ exports.taskClientBundle = function() {
         });
 
         return b.bundle()
-          .pipe(source(path.basename(file.path)))
+          .pipe(source(path.basename(file.path).replace('-main', '')))
           .pipe(buffer());
       }))
       .pipe(gulp.dest('./build/public'));
@@ -209,7 +225,7 @@ exports.taskClientBundle = function() {
 
 
 exports.taskClean = function() {
-  return function(cb) {
-    del(['./build/**'], cb);
+  return function() {
+    del.sync(['./build/**'])
   }
 };
