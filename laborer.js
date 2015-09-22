@@ -57,6 +57,7 @@ exports.taskStyle = function(styleName) {
 
 
 exports.taskClientTypeScript = function(opt) {
+  var opt = opt || {};
   var declaration = opt.declaration || false;
   return function() {
     var errorTexts = [];
@@ -114,6 +115,7 @@ exports.taskClientTypeScript = function(opt) {
 
 
 exports.taskServerTypeScript = function(opt) {
+  var opt = opt || {};
   var declaration = opt.declaration || false;
   return function() {
     var errorTexts = [];
