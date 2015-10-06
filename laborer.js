@@ -169,7 +169,7 @@ exports.taskServerTypeScript = function(opt) {
 
 var mochaParams = {
   reporter: 'spec'
-}
+};
 
 exports.taskUtilsTest = function() {
   return function() {
