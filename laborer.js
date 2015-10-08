@@ -215,65 +215,84 @@ exports.taskServerTest = function() {
 };
 
 
+function webpackCompilerFactory() {
+  var cwd = process.cwd();
+  var files = fs.readdirSync(path.join(cwd, '/build/client'));
+
+  var entryFiles = files.filter(function(file) { return /-entry\.js$/.test(file) });
+  if (!entryFiles.length) return callback();
+
+  var entry = {};
+  entryFiles.forEach(function(entryFile) {
+    entry[entryFile.substr(0, entryFile.length - 9)] = './build/client/' + entryFile;
+  });
+
+  //{
+  //  pivot: './build/client/pivot-entry.js'
+  //}
+
+  return webpack({
+    context: cwd,
+    entry: entry,
+    output: {
+      path: path.join(cwd, "/build/public"),
+      filename: "[name].js",
+      chunkFilename: "[name].[hash].js"
+    },
+    resolveLoader: {
+      root: path.join(__dirname, "node_modules")
+    },
+    module: {
+      loaders: [
+        { test: /\.svg$/, loaders: ['raw-loader', 'svgo-loader?useConfig=svgoConfig1'] },
+        { test: /\.css$/, loaders: ['style-loader', 'css-loader'] }
+      ]
+    },
+    svgoConfig1: {
+      plugins: [
+        // https://github.com/svg/svgo
+        { removeTitle: true },
+        { removeDimensions: true },
+        { convertColors: { shorthex: false } },
+        { convertPathData: false }
+      ]
+    }
+  });
+}
+
 exports.taskClientPack = function(opt) {
   var opt = opt || {};
   var showStats = opt.showStats || false;
   return function(callback) {
-    var cwd = process.cwd();
-
-    fs.readdir(path.join(cwd, '/build/client'), function(err, files) {
-      if (err) return callback(err);
-
-      var entryFiles = files.filter(function(file) { return /-entry\.js$/.test(file) });
-      if (!entryFiles.length) return callback();
-
-      var entry = {};
-      entryFiles.forEach(function(entryFile) {
-        entry[entryFile.substr(0, entryFile.length - 9)] = './build/client/' + entryFile;
-      });
-
-      //{
-      //  pivot: './build/client/pivot-entry.js'
-      //}
-
-      webpack({
-        context: cwd,
-        entry: entry,
-        output: {
-          path: path.join(cwd, "/build/public"),
-          filename: "[name].js",
-          chunkFilename: "[name].[hash].js"
-        },
-        resolveLoader: {
-          root: path.join(__dirname, "node_modules")
-        },
-        module: {
-          loaders: [
-            { test: /\.svg$/, loaders: ['raw-loader', 'svgo-loader?useConfig=svgoConfig1'] },
-            { test: /\.css$/, loaders: ['style-loader', 'css-loader'] }
-          ]
-        },
-        svgoConfig1: {
-          plugins: [
-            // https://github.com/svg/svgo
-            { removeTitle: true },
-            { removeDimensions: true },
-            { convertColors: { shorthex: false } },
-            { convertPathData: false }
-          ]
-        }
-      }, function(err, stats) {
-        if (err) throw new gutil.PluginError("webpack", err);
-        //if (stats.hasErrors) throw new gutil.PluginError("webpack error", "there were errors");
-        if (showStats) {
-          gutil.log("[webpack]", stats.toString({
-            colors: true
-          }));
-        }
-        callback();
-      });
+    webpackCompilerFactory().run(function(err, stats) {
+      if (err) throw new gutil.PluginError("webpack", err);
+      //if (stats.hasErrors) throw new gutil.PluginError("webpack error", "there were errors");
+      if (showStats) {
+        gutil.log("[webpack]", stats.toString({
+          colors: true
+        }));
+      }
+      callback();
     });
   };
+};
+
+
+exports.clientPackWatch = function(opt) {
+  var opt = opt || {};
+  var showStats = opt.showStats || false;
+  webpackCompilerFactory().watch({ // watch options:
+    aggregateTimeout: 300 // wait so long for more changes
+    //poll: true // use polling instead of native watchers
+  }, function(err, stats) {
+    if (err) throw new gutil.PluginError("webpack", err);
+    //if (stats.hasErrors) throw new gutil.PluginError("webpack error", "there were errors");
+    if (showStats) {
+      gutil.log("[webpack watch]", stats.toString({
+        colors: true
+      }));
+    }
+  });
 };
 
 
