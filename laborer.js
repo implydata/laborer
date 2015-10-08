@@ -55,6 +55,15 @@ exports.taskStyle = function() {
 };
 
 
+exports.taskIcons = function() {
+  return function() {
+    return gulp.src('./src/client/**/*.svg')
+      // Just copy for now
+      .pipe(gulp.dest('./build/client'))
+  };
+};
+
+
 exports.taskClientTypeScript = function(opt) {
   var opt = opt || {};
   var declaration = opt.declaration || false;
