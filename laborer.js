@@ -263,10 +263,11 @@ exports.taskClientPack = function(opt) {
           ]
         }
       }, function(err, stats) {
-        if(err) throw new gutil.PluginError("webpack", err);
+        if (err) throw new gutil.PluginError("webpack", err);
+        //if (stats.hasErrors) throw new gutil.PluginError("webpack error", "there were errors");
         if (showStats) {
           gutil.log("[webpack]", stats.toString({
-            // output options
+            colors: true
           }));
         }
         callback();
