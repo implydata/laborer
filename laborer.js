@@ -1,19 +1,16 @@
 'use strict';
 
-var browserify = require('browserify');
-var source = require('vinyl-source-stream');
-var buffer = require('vinyl-buffer');
+var fs = require('fs');
 var path = require('path');
 
 var gulp = require('gulp');
+var gutil = require("gulp-util");
 var sass = require('gulp-sass');
 var scsslint = require('gulp-scss-lint');
 var postcss = require('gulp-postcss');
 var autoprefixer = require('autoprefixer');
 var tsc = require('gulp-typescript');
-var concat = require('gulp-concat');
 var tslint = require('gulp-tslint');
-var foreach = require('gulp-foreach');
 var sourcemaps = require('gulp-sourcemaps');
 
 var merge = require('merge-stream');
@@ -26,8 +23,9 @@ var mocha = require('gulp-mocha');
 var tsLintConfig = require('./tslint');
 var gr = require('./gulp-reporters');
 
+var webpack = require("webpack");
 
-exports.taskStyle = function(styleName) {
+exports.taskStyle = function() {
   return function() {
     var errorTexts = [];
 
@@ -38,7 +36,9 @@ exports.taskStyle = function(styleName) {
           errorTexts: errorTexts
         })
       }))
-      .pipe(sass().on('error', gr.sassErrorFactory({
+      .pipe(sass({
+        outputStyle: 'compressed'
+      }).on('error', gr.sassErrorFactory({
         errorTexts: errorTexts
       })))
       .pipe(postcss([
@@ -47,8 +47,7 @@ exports.taskStyle = function(styleName) {
           remove: false // If you have no legacy code, this option will make Autoprefixer about 10% faster.
         })
       ]))
-      .pipe(concat(styleName))
-      .pipe(gulp.dest('./build/public'))
+      .pipe(gulp.dest('./build/client'))
       .on('finish', function() {
         gr.writeErrors('./webstorm/errors', errorTexts);
       });
@@ -207,21 +206,63 @@ exports.taskServerTest = function() {
 };
 
 
-exports.taskClientBundle = function() {
-  return function() {
-    return gulp.src('./build/client/*-main.js')
-      .pipe(foreach(function(stream, file) {
-        // From: https://github.com/gulpjs/gulp/blob/master/docs/recipes/browserify-uglify-sourcemap.md
-        var b = browserify({
-          //debug: true,
-          entries: file.path
-        });
+exports.taskClientPack = function(opt) {
+  var opt = opt || {};
+  var showStats = opt.showStats || false;
+  return function(callback) {
+    var cwd = process.cwd();
 
-        return b.bundle()
-          .pipe(source(path.basename(file.path).replace('-main', '')))
-          .pipe(buffer());
-      }))
-      .pipe(gulp.dest('./build/public'));
+    fs.readdir(path.join(cwd, '/build/client'), function(err, files) {
+      if (err) return callback(err);
+
+      var entryFiles = files.filter(function(file) { return /-entry\.js$/.test(file) });
+      if (!entryFiles.length) return callback();
+
+      var entry = {};
+      entryFiles.forEach(function(entryFile) {
+        entry[entryFile.substr(0, entryFile.length - 9)] = './build/client/' + entryFile;
+      });
+
+      //{
+      //  pivot: './build/client/pivot-entry.js'
+      //}
+
+      webpack({
+        context: cwd,
+        entry: entry,
+        output: {
+          path: path.join(cwd, "/build/public"),
+          filename: "[name].js",
+          chunkFilename: "[name].[hash].js"
+        },
+        resolveLoader: {
+          root: path.join(__dirname, "node_modules")
+        },
+        module: {
+          loaders: [
+            { test: /\.svg$/, loaders: ['raw-loader', 'svgo-loader?useConfig=svgoConfig1'] },
+            { test: /\.css$/, loaders: ['style-loader', 'css-loader'] }
+          ]
+        },
+        svgoConfig1: {
+          plugins: [
+            // https://github.com/svg/svgo
+            { removeTitle: true },
+            { removeDimensions: true },
+            { convertColors: { shorthex: false } },
+            { convertPathData: false }
+          ]
+        }
+      }, function(err, stats) {
+        if(err) throw new gutil.PluginError("webpack", err);
+        if (showStats) {
+          gutil.log("[webpack]", stats.toString({
+            // output options
+          }));
+        }
+        callback();
+      });
+    });
   };
 };
 
