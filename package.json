@@ -34,7 +34,7 @@
     "gulp-postcss": "6.0.1",
     "gulp-replace": "0.5.4",
     "gulp-sass": "2.0.4",
-    "gulp-scss-lint": "0.3.5",
+    "gulp-scss-lint": "0.3.6",
     "gulp-sourcemaps": "1.6.0",
     "gulp-tslint": "3.3.0",
     "gulp-typescript": "2.9.2",
