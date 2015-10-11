@@ -215,7 +215,8 @@ exports.taskServerTest = function() {
 };
 
 
-function webpackCompilerFactory() {
+function webpackCompilerFactory(opt) {
+  var opt = opt || {};
   var cwd = process.cwd();
   var files = fs.readdirSync(path.join(cwd, '/build/client'));
 
@@ -234,6 +235,7 @@ function webpackCompilerFactory() {
   return webpack({
     context: cwd,
     entry: entry,
+    target: opt.target || 'web',
     output: {
       path: path.join(cwd, "/build/public"),
       filename: "[name].js",
@@ -264,7 +266,7 @@ exports.taskClientPack = function(opt) {
   var opt = opt || {};
   var showStats = opt.showStats || false;
   return function(callback) {
-    webpackCompilerFactory().run(function(err, stats) {
+    webpackCompilerFactory(opt).run(function(err, stats) {
       if (err) throw new gutil.PluginError("webpack", err);
       //if (stats.hasErrors) throw new gutil.PluginError("webpack error", "there were errors");
       if (showStats) {
@@ -281,7 +283,7 @@ exports.taskClientPack = function(opt) {
 exports.clientPackWatch = function(opt) {
   var opt = opt || {};
   var showStats = opt.showStats || false;
-  webpackCompilerFactory().watch({ // watch options:
+  webpackCompilerFactory(opt).watch({ // watch options:
     aggregateTimeout: 300 // wait so long for more changes
     //poll: true // use polling instead of native watchers
   }, function(err, stats) {
