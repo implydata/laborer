@@ -64,6 +64,15 @@ exports.taskIcons = function() {
 };
 
 
+exports.taskHtml = function() {
+  return function() {
+    return gulp.src('./src/client/**/*.html')
+      // Just copy for now
+      .pipe(gulp.dest('./build/client'))
+  };
+};
+
+
 exports.taskClientTypeScript = function(opt) {
   var opt = opt || {};
   var declaration = opt.declaration || false;
@@ -221,7 +230,7 @@ function webpackCompilerFactory(opt) {
   var files = fs.readdirSync(path.join(cwd, '/build/client'));
 
   var entryFiles = files.filter(function(file) { return /-entry\.js$/.test(file) });
-  if (!entryFiles.length) return callback();
+  if (!entryFiles.length) return null;
 
   var entry = {};
   entryFiles.forEach(function(entryFile) {
@@ -266,7 +275,9 @@ exports.taskClientPack = function(opt) {
   var opt = opt || {};
   var showStats = opt.showStats || false;
   return function(callback) {
-    webpackCompilerFactory(opt).run(function(err, stats) {
+    var webpackCompiler = webpackCompilerFactory(opt);
+    if (!webpackCompiler) return callback();
+    webpackCompiler.run(function(err, stats) {
       if (err) throw new gutil.PluginError("webpack", err);
       //if (stats.hasErrors) throw new gutil.PluginError("webpack error", "there were errors");
       if (showStats) {
@@ -283,7 +294,9 @@ exports.taskClientPack = function(opt) {
 exports.clientPackWatch = function(opt) {
   var opt = opt || {};
   var showStats = opt.showStats || false;
-  webpackCompilerFactory(opt).watch({ // watch options:
+  var webpackCompiler = webpackCompilerFactory(opt);
+  if (!webpackCompiler) throw new Error('no entry files found');
+  webpackCompiler.watch({ // watch options:
     aggregateTimeout: 300 // wait so long for more changes
     //poll: true // use polling instead of native watchers
   }, function(err, stats) {
