@@ -1,6 +1,6 @@
 {
   "name": "laborer",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "Laborer works hard so you do not have to",
   "main": "laborer.js",
   "scripts": {
