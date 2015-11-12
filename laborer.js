@@ -83,9 +83,7 @@ exports.taskClientTypeScript = function(opt) {
       return str.replace('/build/tmp/', '/src/');
     }
 
-    var sourceFiles = gulp.src(['./src/{client,common}/**/*.ts'])
-      .pipe(gr.jsxFixerFactory())
-      .pipe(gulp.dest('./build/tmp/')) // typescript requires actual files on disk, not just in memory
+    var sourceFiles = gulp.src(['./src/{client,common}/**/*.{ts,tsx}'])
       .pipe(tslint({
         configuration: tsLintConfig
       }))
@@ -100,7 +98,7 @@ exports.taskClientTypeScript = function(opt) {
     var typeFiles = gulp.src(['./typings/**/*.d.ts']);
 
     var compiled = merge(sourceFiles, typeFiles)
-      //.pipe(sourcemaps.init())
+    //.pipe(sourcemaps.init())
       .pipe(tsc(
         {
           typescript: typescript,
@@ -108,7 +106,8 @@ exports.taskClientTypeScript = function(opt) {
           noEmitOnError: true,
           target: 'ES5',
           module: 'commonjs',
-          declaration: declaration
+          declaration: declaration,
+          jsx: 'react'
         },
         undefined,
         gr.tscReporterFactory({
@@ -117,7 +116,7 @@ exports.taskClientTypeScript = function(opt) {
           onFinish: function() { gr.writeErrors('./webstorm/errors', errorTexts); }
         })
       ));
-      //.pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '../client' }))
+    //.pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '../client' }))
 
     if (declaration) {
       return merge([
