@@ -6,7 +6,7 @@ var path = require('path');
 var gulp = require('gulp');
 var gutil = require("gulp-util");
 var sass = require('gulp-sass');
-var scsslint = require('gulp-scss-lint');
+var sassLint = require('gulp-sass-lint');
 var postcss = require('gulp-postcss');
 var autoprefixer = require('autoprefixer');
 var tsc = require('gulp-typescript');
@@ -20,22 +20,21 @@ var typescript = require('typescript');
 
 var mocha = require('gulp-mocha');
 
-var tsLintConfig = require('./tslint');
+var tsLintConfig = require('./tslint-rules');
+var sassLintRules = require('./sasslint-rules');
 var gr = require('./gulp-reporters');
 
 var webpack = require("webpack");
 
-exports.taskStyle = function() {
+exports.taskStyle = function(opt) {
+  var opt = opt || {};
+  var rules = opt.rules || sassLintRules;
   return function() {
     var errorTexts = [];
 
     return gulp.src('./src/client/**/*.scss')
-      .pipe(scsslint({
-        config: './src/lint/sass-lint.yml',
-        customReport: gr.sassLintReporterFactory({
-          errorTexts: errorTexts
-        })
-      }))
+      .pipe(sassLint({ rules: rules }))
+      .pipe(gr.sassLintReporterFactory({ errorTexts: errorTexts }))
       .pipe(sass({
         outputStyle: 'compressed'
       }).on('error', gr.sassErrorFactory({

@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var gutil = require('gulp-util');
+var through = require('through2');
 
 function flattenDiagnosticsVerbose(message, index) {
   if (index == null) index = 0;
@@ -71,17 +72,31 @@ exports.tscReporterFactory = function(opt) {
 exports.sassLintReporterFactory = function(opt) {
   var errorTexts = opt.errorTexts;
 
-  return function(file, stream) {
-    if (!file.scsslint.success) {
-      file.scsslint.issues.forEach(function (issue) {
-        var linter = issue.linter ? (issue.linter + ': ') : '';
-        var logMsg = file.path + '(' + issue.line + ',0): ' + linter + issue.reason;
+  var compile = through.obj(function (file, encoding, cb) {
+    if (file.isNull()) {
+      return cb();
+    }
+    if (file.isStream()) {
+      this.emit('error', new Error('Streams are not supported!'));
+      return cb();
+    }
+
+    var result = file.sassLint[0];
+
+    if (result.messages.length) {
+      result.messages.forEach(function (message) {
+        var linter = message.ruleId ? (message.ruleId + ': ') : '';
+        var logMsg = file.path + '(' + message.line + ',' + message.column + '): ' + linter + message.message;
 
         errorTexts.push(logMsg);
         console.error(gutil.colors.red(logMsg));
       });
     }
-  }
+
+    this.push(file);
+    cb();
+  });
+  return compile;
 };
 
 exports.sassErrorFactory = function(opt) {
