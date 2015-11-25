@@ -36,6 +36,7 @@ module.exports = {
     "allow-element-with-id": false
   }],
   "no-trailing-zero": 0,
+  "no-transition-all": false,
   "no-url-protocols": 1,
   "no-vendor-prefixes": [1, {"additional-identifiers": [], "excluded-identifiers": []}],
   "placeholder-in-extend": 1,
