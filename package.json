@@ -19,12 +19,12 @@
   },
   "homepage": "https://github.com/implydata/laborer#readme",
   "dependencies": {
-    "autoprefixer": "6.1.1",
+    "autoprefixer": "6.1.2",
     "css-loader": "0.23.0",
     "del": "2.1.0",
     "file-loader": "0.8.5",
     "gulp": "3.9.0",
-    "gulp-cache": "0.4.0",
+    "gulp-cache": "0.4.1",
     "gulp-concat": "2.6.0",
     "gulp-debug": "2.1.2",
     "gulp-mocha": "2.2.0",
@@ -32,7 +32,7 @@
     "gulp-sass": "2.1.0",
     "gulp-sass-lint": "1.1.0",
     "gulp-sourcemaps": "1.6.0",
-    "gulp-tslint": "3.6.0",
+    "gulp-tslint": "4.1.0",
     "gulp-typescript": "2.9.2",
     "gulp-util": "3.0.7",
     "gulp-watch": "4.3.5",
@@ -42,7 +42,7 @@
     "svgo": "0.6.1",
     "svgo-loader": "1.1.0",
     "through2": "2.0.0",
-    "typescript": "1.6.2",
+    "typescript": "1.7.3",
     "webpack": "1.12.9"
   }
 }
