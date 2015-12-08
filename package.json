@@ -1,6 +1,6 @@
 {
   "name": "laborer",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "Laborer works hard so you do not have to",
   "main": "laborer.js",
   "repository": {
