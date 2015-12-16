@@ -48,6 +48,7 @@ module.exports = {
   "space-after-bang": [1, {"include": false}],
   "space-after-colon": [1, {"include": true}],
   "space-after-comma": 1,
+  "space-around-operator": 0,
   "space-before-bang": [1, {"include": true}],
   "space-before-brace": [1, {"include": true}],
   "space-before-colon": 1,
