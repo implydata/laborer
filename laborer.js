@@ -102,6 +102,8 @@ exports.taskClientTypeScript = function(opt) {
         {
           typescript: typescript,
           noImplicitAny: true,
+          noFallthroughCasesInSwitch: true,
+          noImplicitReturns: true,
           noEmitOnError: true,
           target: 'ES5',
           module: 'commonjs',
@@ -154,6 +156,8 @@ exports.taskServerTypeScript = function(opt) {
         {
           typescript: typescript,
           noImplicitAny: true,
+          noFallthroughCasesInSwitch: true,
+          noImplicitReturns: true,
           noEmitOnError: true,
           target: 'ES5',
           module: 'commonjs',
