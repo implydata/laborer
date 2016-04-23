@@ -322,6 +322,7 @@ function webpackResultHandler(showStats, err, stats) {
     }
   }
 
+  if (errorTexts.length) console.error(errorTexts.join('\n'));
   gr.writeErrors('./webstorm/errors', errorTexts);
   if (globalFailOnError && errorTexts.length) process.exit(1);
 }
