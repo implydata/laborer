@@ -26,6 +26,29 @@ var gr = require('./gulp-reporters');
 
 var webpack = require("webpack");
 
+
+// Modifiers ==============
+
+var globalShowStats = false;
+
+exports.showStats = function() {
+  globalShowStats = true;
+};
+
+exports.hideStats = function() {
+  globalShowStats = false;
+};
+
+
+var globalFailOnError = false;
+
+exports.failOnError = function() {
+  globalFailOnError = true;
+};
+
+
+// TASKS ==============
+
 exports.taskStyle = function(opt) {
   var opt = opt || {};
   var rules = opt.rules || sassLintRules;
@@ -49,6 +72,7 @@ exports.taskStyle = function(opt) {
       .pipe(gulp.dest('./build/client'))
       .on('finish', function() {
         gr.writeErrors('./webstorm/errors', errorTexts);
+        if (globalFailOnError && errorTexts.length) process.exit(1);
       });
   };
 };
@@ -114,7 +138,10 @@ exports.taskClientTypeScript = function(opt) {
         gr.tscReporterFactory({
           errorTexts: errorTexts,
           fixPath: fixPath,
-          onFinish: function() { gr.writeErrors('./webstorm/errors', errorTexts); }
+          onFinish: function() {
+            gr.writeErrors('./webstorm/errors', errorTexts);
+            if (globalFailOnError && errorTexts.length) process.exit(1);
+          }
         })
       ));
     //.pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '../client' }))
@@ -166,7 +193,10 @@ exports.taskServerTypeScript = function(opt) {
         undefined,
         gr.tscReporterFactory({
           errorTexts: errorTexts,
-          onFinish: function() { gr.writeErrors('./webstorm/errors', errorTexts); }
+          onFinish: function() {
+            gr.writeErrors('./webstorm/errors', errorTexts);
+            if (globalFailOnError && errorTexts.length) process.exit(1);
+          }
         })
       ));
       //.pipe(sourcemaps.write('.', {
@@ -273,20 +303,37 @@ function webpackCompilerFactory(opt) {
   });
 }
 
+
+function webpackResultHandler(showStats, err, stats) {
+  var errorTexts = [];
+  if (err) {
+    errorTexts.push('Fatal webpack error: ' + err.message);
+  } else {
+    var jsonStats = stats.toJson();
+
+    if(jsonStats.errors.length > 0 || jsonStats.warnings.length > 0) {
+      errorTexts = jsonStats.errors.concat(jsonStats.warnings);
+    }
+
+    if (showStats) {
+      gutil.log("[webpack]", stats.toString({
+        colors: true
+      }));
+    }
+  }
+
+  gr.writeErrors('./webstorm/errors', errorTexts);
+  if (globalFailOnError && errorTexts.length) process.exit(1);
+}
+
 exports.taskClientPack = function(opt) {
   var opt = opt || {};
-  var showStats = opt.showStats || false;
+  var showStats = opt.showStats || globalShowStats;
   return function(callback) {
     var webpackCompiler = webpackCompilerFactory(opt);
     if (!webpackCompiler) return callback();
     webpackCompiler.run(function(err, stats) {
-      if (err) throw new gutil.PluginError("webpack", err);
-      //if (stats.hasErrors) throw new gutil.PluginError("webpack error", "there were errors");
-      if (showStats) {
-        gutil.log("[webpack]", stats.toString({
-          colors: true
-        }));
-      }
+      webpackResultHandler(showStats, err, stats);
       callback();
     });
   };
@@ -295,20 +342,14 @@ exports.taskClientPack = function(opt) {
 
 exports.clientPackWatch = function(opt) {
   var opt = opt || {};
-  var showStats = opt.showStats || false;
+  var showStats = opt.showStats || globalShowStats;
   var webpackCompiler = webpackCompilerFactory(opt);
   if (!webpackCompiler) throw new Error('no entry files found');
   webpackCompiler.watch({ // watch options:
     aggregateTimeout: 300 // wait so long for more changes
     //poll: true // use polling instead of native watchers
   }, function(err, stats) {
-    if (err) throw new gutil.PluginError("webpack", err);
-    //if (stats.hasErrors) throw new gutil.PluginError("webpack error", "there were errors");
-    if (showStats) {
-      gutil.log("[webpack watch]", stats.toString({
-        colors: true
-      }));
-    }
+    webpackResultHandler(showStats, err, stats);
   });
 };
 
