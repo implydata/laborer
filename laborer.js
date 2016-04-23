@@ -315,7 +315,7 @@ function webpackResultHandler(showStats, err, stats) {
       errorTexts = jsonStats.errors.concat(jsonStats.warnings);
     }
 
-    if (showStats) {
+    if (showStats || globalShowStats) {
       gutil.log("[webpack]", stats.toString({
         colors: true
       }));
@@ -329,7 +329,7 @@ function webpackResultHandler(showStats, err, stats) {
 
 exports.taskClientPack = function(opt) {
   var opt = opt || {};
-  var showStats = opt.showStats || globalShowStats;
+  var showStats = opt.showStats;
   return function(callback) {
     var webpackCompiler = webpackCompilerFactory(opt);
     if (!webpackCompiler) return callback();
@@ -343,7 +343,7 @@ exports.taskClientPack = function(opt) {
 
 exports.clientPackWatch = function(opt) {
   var opt = opt || {};
-  var showStats = opt.showStats || globalShowStats;
+  var showStats = opt.showStats;
   var webpackCompiler = webpackCompilerFactory(opt);
   if (!webpackCompiler) throw new Error('no entry files found');
   webpackCompiler.watch({ // watch options:
