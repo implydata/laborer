@@ -214,7 +214,7 @@ exports.taskUtilsTest = function() {
   return function() {
     return gulp.src('./build/utils/**/*.mocha.js', {read: false})
       // gulp-mocha needs filepaths so you can't have any plugins before it
-      .pipe(mocha(mochaParams));
+      .pipe($.mocha(mochaParams));
   };
 };
 
@@ -223,7 +223,7 @@ exports.taskModelsTest = function() {
   return function() {
     return gulp.src('./build/models/**/*.mocha.js', {read: false})
       // gulp-mocha needs filepaths so you can't have any plugins before it
-      .pipe(mocha(mochaParams));
+      .pipe($.mocha(mochaParams));
   };
 };
 
@@ -232,7 +232,7 @@ exports.taskClientTest = function() {
   return function() {
     return gulp.src('./build/client/**/*.mocha.js', {read: false})
       // gulp-mocha needs filepaths so you can't have any plugins before it
-      .pipe(mocha(mochaParams));
+      .pipe($.mocha(mochaParams));
   };
 };
 
