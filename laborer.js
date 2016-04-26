@@ -43,7 +43,7 @@ exports.failOnError = function() {
 // TASKS ==============
 
 exports.taskStyle = function(opt) {
-  var opt = opt || {};
+  opt = opt || {};
   var rules = opt.rules || sassLintRules;
   return function() {
     var errorTexts = [];
@@ -90,7 +90,7 @@ exports.taskHtml = function() {
 
 
 exports.taskClientTypeScript = function(opt) {
-  var opt = opt || {};
+  opt = opt || {};
   var declaration = opt.declaration || false;
 
   var tsProject = $.typescript.createProject({
@@ -152,7 +152,7 @@ exports.taskClientTypeScript = function(opt) {
 
 
 exports.taskServerTypeScript = function(opt) {
-  var opt = opt || {};
+  opt = opt || {};
   var declaration = opt.declaration || false;
 
   var tsProject = $.typescript.createProject({
@@ -247,7 +247,7 @@ exports.taskServerTest = function() {
 
 
 function webpackCompilerFactory(opt) {
-  var opt = opt || {};
+  opt = opt || {};
   var cwd = process.cwd();
   var files = fs.readdirSync(path.join(cwd, '/build/client'));
 
@@ -306,7 +306,7 @@ function webpackResultHandler(showStats, err, stats) {
     }
 
     if (showStats || globalShowStats) {
-      gutil.log("[webpack]", stats.toString({
+      $.gutil.log("[webpack]", stats.toString({
         colors: true
       }));
     }
@@ -318,7 +318,7 @@ function webpackResultHandler(showStats, err, stats) {
 }
 
 exports.taskClientPack = function(opt) {
-  var opt = opt || {};
+  opt = opt || {};
   var showStats = opt.showStats;
   return function(callback) {
     var webpackCompiler = webpackCompilerFactory(opt);
@@ -332,7 +332,7 @@ exports.taskClientPack = function(opt) {
 
 
 exports.clientPackWatch = function(opt) {
-  var opt = opt || {};
+  opt = opt || {};
   var showStats = opt.showStats;
   var webpackCompiler = webpackCompilerFactory(opt);
   if (!webpackCompiler) throw new Error('no entry files found');
@@ -341,6 +341,7 @@ exports.clientPackWatch = function(opt) {
     //poll: true // use polling instead of native watchers
   }, function(err, stats) {
     webpackResultHandler(showStats, err, stats);
+    $.gutil.log("[webpack]", 'done');
   });
 };
 
