@@ -306,7 +306,7 @@ function webpackResultHandler(showStats, err, stats) {
     }
 
     if (showStats || globalShowStats) {
-      $.gutil.log("[webpack]", stats.toString({
+      $.util.log("[webpack]", stats.toString({
         colors: true
       }));
     }
@@ -341,7 +341,7 @@ exports.clientPackWatch = function(opt) {
     //poll: true // use polling instead of native watchers
   }, function(err, stats) {
     webpackResultHandler(showStats, err, stats);
-    $.gutil.log("[webpack]", 'done');
+    $.util.log("[webpack]", 'done');
   });
 };
 
