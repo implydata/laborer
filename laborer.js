@@ -241,7 +241,7 @@ exports.taskServerTest = function() {
   return function() {
     return gulp.src('./build/server/**/*.mocha.js', {read: false})
       // gulp-mocha needs filepaths so you can't have any plugins before it
-      .pipe(mocha(mochaParams));
+      .pipe($.mocha(mochaParams));
   };
 };
 
