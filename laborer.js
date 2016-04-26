@@ -4,21 +4,14 @@ var fs = require('fs');
 var path = require('path');
 
 var gulp = require('gulp');
-var gutil = require("gulp-util");
-var sass = require('gulp-sass');
-var sassLint = require('gulp-sass-lint');
-var postcss = require('gulp-postcss');
+var $ = require('gulp-load-plugins')();
+
 var autoprefixer = require('autoprefixer');
-var tsc = require('gulp-typescript');
-var tslint = require('gulp-tslint');
-var sourcemaps = require('gulp-sourcemaps');
 
 var merge = require('merge-stream');
-var debug = require('gulp-debug');
 var del = require('del');
 var typescript = require('typescript');
 
-var mocha = require('gulp-mocha');
 
 var tsLintConfig = require('./tslint-rules');
 var sassLintRules = require('./sasslint-rules');
@@ -56,14 +49,14 @@ exports.taskStyle = function(opt) {
     var errorTexts = [];
 
     return gulp.src('./src/client/**/*.scss')
-      .pipe(sassLint({ rules: rules }))
+      .pipe($.sassLint({ rules: rules }))
       .pipe(gr.sassLintReporterFactory({ errorTexts: errorTexts }))
-      .pipe(sass({
+      .pipe($.sass({
         outputStyle: 'compressed'
       }).on('error', gr.sassErrorFactory({
         errorTexts: errorTexts
       })))
-      .pipe(postcss([
+      .pipe($.postcss([
         autoprefixer({
           browsers: ['> 1%', 'last 3 versions', 'Firefox ESR', 'Opera 12.1'],
           remove: false // If you have no legacy code, this option will make Autoprefixer about 10% faster.
@@ -99,6 +92,19 @@ exports.taskHtml = function() {
 exports.taskClientTypeScript = function(opt) {
   var opt = opt || {};
   var declaration = opt.declaration || false;
+
+  var tsProject = $.typescript.createProject({
+    typescript: typescript,
+    noImplicitAny: true,
+    noFallthroughCasesInSwitch: true,
+    noImplicitReturns: true,
+    noEmitOnError: true,
+    target: 'ES5',
+    module: 'commonjs',
+    declaration: declaration,
+    jsx: 'react'
+  });
+
   return function() {
     var errorTexts = [];
 
@@ -107,10 +113,9 @@ exports.taskClientTypeScript = function(opt) {
     }
 
     var sourceFiles = gulp.src(['./src/{client,common}/**/*.{ts,tsx}'])
-      .pipe(tslint({
-        configuration: tsLintConfig
-      }))
-      .pipe(tslint.report(
+      .pipe($.cached('client'))
+      .pipe($.tslint({configuration: tsLintConfig}))
+      .pipe($.tslint.report(
         gr.tscLintReporterFactory({
           errorTexts: errorTexts,
           fixPath: fixPath
@@ -121,19 +126,8 @@ exports.taskClientTypeScript = function(opt) {
     var typeFiles = gulp.src(['./typings/**/*.d.ts']);
 
     var compiled = merge(sourceFiles, typeFiles)
-    //.pipe(sourcemaps.init())
-      .pipe(tsc(
-        {
-          typescript: typescript,
-          noImplicitAny: true,
-          noFallthroughCasesInSwitch: true,
-          noImplicitReturns: true,
-          noEmitOnError: true,
-          target: 'ES5',
-          module: 'commonjs',
-          declaration: declaration,
-          jsx: 'react'
-        },
+      .pipe($.typescript(
+        tsProject,
         undefined,
         gr.tscReporterFactory({
           errorTexts: errorTexts,
@@ -144,7 +138,6 @@ exports.taskClientTypeScript = function(opt) {
           }
         })
       ));
-    //.pipe(sourcemaps.write('.', { includeContent: false, sourceRoot: '../client' }))
 
     if (declaration) {
       return merge([
@@ -161,14 +154,25 @@ exports.taskClientTypeScript = function(opt) {
 exports.taskServerTypeScript = function(opt) {
   var opt = opt || {};
   var declaration = opt.declaration || false;
+
+  var tsProject = $.typescript.createProject({
+    typescript: typescript,
+    noImplicitAny: true,
+    noFallthroughCasesInSwitch: true,
+    noImplicitReturns: true,
+    noEmitOnError: true,
+    target: 'ES5',
+    module: 'commonjs',
+    declaration: declaration
+  });
+
   return function() {
     var errorTexts = [];
 
     var sourceFiles = gulp.src(['./src/{server,common}/**/*.ts'])
-      .pipe(tslint({
-        configuration: tsLintConfig
-      }))
-      .pipe(tslint.report(
+      .pipe($.cached('server'))
+      .pipe($.tslint({configuration: tsLintConfig}))
+      .pipe($.tslint.report(
         gr.tscLintReporterFactory({
           errorTexts: errorTexts
         }),
@@ -178,18 +182,8 @@ exports.taskServerTypeScript = function(opt) {
     var typeFiles = gulp.src(['./typings/**/*.d.ts']);
 
     var compiled = merge(sourceFiles, typeFiles)
-      //.pipe(sourcemaps.init())
-      .pipe(tsc(
-        {
-          typescript: typescript,
-          noImplicitAny: true,
-          noFallthroughCasesInSwitch: true,
-          noImplicitReturns: true,
-          noEmitOnError: true,
-          target: 'ES5',
-          module: 'commonjs',
-          declaration: declaration
-        },
+      .pipe($.typescript(
+        tsProject,
         undefined,
         gr.tscReporterFactory({
           errorTexts: errorTexts,
@@ -199,10 +193,6 @@ exports.taskServerTypeScript = function(opt) {
           }
         })
       ));
-      //.pipe(sourcemaps.write('.', {
-      //  includeContent: false,
-      //  sourceRoot: '../../src/server'
-      //}));
 
     if (declaration) {
       return merge([
