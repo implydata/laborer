@@ -206,43 +206,24 @@ exports.taskServerTypeScript = function(opt) {
 };
 
 
-var mochaParams = {
-  reporter: 'spec'
+var generateTester = function(path, parameters) {
+  return function() {
+    return gulp.src(path, {read: false})
+      // gulp-mocha needs filepaths so you can't have any plugins before it
+      .pipe($.mocha(parameters));
+  };
+}
+
+exports.taskCommonTest = function(parameters) {
+  return generateTester('./build/common/**/*.mocha.js', parameters);
 };
 
-exports.taskUtilsTest = function() {
-  return function() {
-    return gulp.src('./build/utils/**/*.mocha.js', {read: false})
-      // gulp-mocha needs filepaths so you can't have any plugins before it
-      .pipe($.mocha(mochaParams));
-  };
+exports.taskClientTest = function(parameters) {
+  return generateTester('./build/client/**/*.mocha.js', parameters);
 };
 
-
-exports.taskModelsTest = function() {
-  return function() {
-    return gulp.src('./build/models/**/*.mocha.js', {read: false})
-      // gulp-mocha needs filepaths so you can't have any plugins before it
-      .pipe($.mocha(mochaParams));
-  };
-};
-
-
-exports.taskClientTest = function() {
-  return function() {
-    return gulp.src('./build/client/**/*.mocha.js', {read: false})
-      // gulp-mocha needs filepaths so you can't have any plugins before it
-      .pipe($.mocha(mochaParams));
-  };
-};
-
-
-exports.taskServerTest = function() {
-  return function() {
-    return gulp.src('./build/server/**/*.mocha.js', {read: false})
-      // gulp-mocha needs filepaths so you can't have any plugins before it
-      .pipe($.mocha(mochaParams));
-  };
+exports.taskServerTest = function(parameters) {
+  return generateTester('./build/server/**/*.mocha.js', parameters);
 };
 
 
