@@ -45,6 +45,9 @@ exports.failOnError = function() {
 exports.taskStyle = function(opt) {
   opt = opt || {};
   var rules = opt.rules || sassLintRules;
+
+  $.sass.compiler = require('node-sass');
+
   return function() {
     var errorTexts = [];
 

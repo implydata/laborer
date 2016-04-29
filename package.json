@@ -39,6 +39,7 @@
     "gulp-util": "3.0.7",
     "gulp-watch": "4.3.5",
     "merge-stream": "1.0.0",
+    "node-sass": "git://github.com/sass/node-sass.git#0bc5da4",
     "raw-loader": "0.5.1",
     "style-loader": "0.13.1",
     "svgo": "0.6.6",
