@@ -1,6 +1,6 @@
 'use strict';
 
-var fs = require('fs');
+var fs = require('graceful-fs');
 var gutil = require('gulp-util');
 var through = require('through2');
 
