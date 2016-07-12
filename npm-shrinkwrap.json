@@ -1,6 +1,6 @@
 {
   "name": "laborer",
-  "version": "2.5.17",
+  "version": "2.5.18",
   "dependencies": {
     "abbrev": {
       "version": "1.0.9",
