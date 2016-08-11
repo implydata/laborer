@@ -19,6 +19,8 @@ var gr = require('./gulp-reporters');
 
 var webpack = require("webpack");
 
+function identity(x) { return x };
+
 
 // Modifiers ==============
 
