@@ -19,7 +19,7 @@ var gr = require('./gulp-reporters');
 
 var webpack = require("webpack");
 
-function identity(x) { return x };
+function identity(x) { return x }
 
 
 // Modifiers ==============
@@ -110,6 +110,7 @@ exports.taskClientTypeScript = function(opt) {
     strictNullChecks: strictNullChecks,
     target: 'ES5',
     module: 'commonjs',
+    moduleResolution: 'node',
     declaration: declaration,
     jsx: 'react'
   });
@@ -176,6 +177,7 @@ exports.taskServerTypeScript = function(opt) {
     strictNullChecks: strictNullChecks,
     target: 'ES5',
     module: 'commonjs',
+    moduleResolution: 'node',
     declaration: declaration
   });
 
