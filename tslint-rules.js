@@ -55,7 +55,7 @@ module.exports = {
     "no-unreachable": false, // TS 1.8 takes care of that.
     "no-unused-expression": false,
     "no-unused-variable": false,
-    "no-use-before-declare": true,
+    "no-use-before-declare": false, // There seems to be some bug here VO - 2016-08-11
     "no-var-keyword": false,
     "no-var-requires": false,
     "object-literal-sort-keys": false,

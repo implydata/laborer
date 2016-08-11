@@ -95,6 +95,8 @@ exports.taskHtml = function() {
 exports.taskClientTypeScript = function(opt) {
   opt = opt || {};
   var declaration = opt.declaration || false;
+  var strictNullChecks = opt.strictNullChecks || false;
+  var tsLintConfigHook = opt.tsLintConfigHook || identity;
 
   var tsProject = $.typescript.createProject({
     typescript: typescript,
@@ -102,6 +104,8 @@ exports.taskClientTypeScript = function(opt) {
     noFallthroughCasesInSwitch: true,
     noImplicitReturns: true,
     noEmitOnError: true,
+    removeComments: true,
+    strictNullChecks: strictNullChecks,
     target: 'ES5',
     module: 'commonjs',
     declaration: declaration,
@@ -117,7 +121,7 @@ exports.taskClientTypeScript = function(opt) {
 
     var sourceFiles = gulp.src(['./src/{client,common}/**/*.{ts,tsx}'])
       .pipe($.cached('client'))
-      .pipe($.tslint({configuration: tsLintConfig}))
+      .pipe($.tslint({configuration: tsLintConfigHook(tsLintConfig)}))
       .pipe($.tslint.report(
         gr.tscLintReporterFactory({
           errorTexts: errorTexts,
@@ -157,6 +161,8 @@ exports.taskClientTypeScript = function(opt) {
 exports.taskServerTypeScript = function(opt) {
   opt = opt || {};
   var declaration = opt.declaration || false;
+  var strictNullChecks = opt.strictNullChecks || false;
+  var tsLintConfigHook = opt.tsLintConfigHook || identity;
 
   var tsProject = $.typescript.createProject({
     typescript: typescript,
@@ -164,6 +170,8 @@ exports.taskServerTypeScript = function(opt) {
     noFallthroughCasesInSwitch: true,
     noImplicitReturns: true,
     noEmitOnError: true,
+    removeComments: true,
+    strictNullChecks: strictNullChecks,
     target: 'ES5',
     module: 'commonjs',
     declaration: declaration
@@ -174,7 +182,7 @@ exports.taskServerTypeScript = function(opt) {
 
     var sourceFiles = gulp.src(['./src/{server,common}/**/*.ts'])
       .pipe($.cached('server'))
-      .pipe($.tslint({configuration: tsLintConfig}))
+      .pipe($.tslint({configuration: tsLintConfigHook(tsLintConfig)}))
       .pipe($.tslint.report(
         gr.tscLintReporterFactory({
           errorTexts: errorTexts
