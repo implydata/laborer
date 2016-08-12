@@ -98,6 +98,7 @@ exports.taskClientTypeScript = function(opt) {
   opt = opt || {};
   var declaration = opt.declaration || false;
   var strictNullChecks = opt.strictNullChecks || false;
+  var skipLibCheck = opt.skipLibCheck || false;
   var tsLintConfigHook = opt.tsLintConfigHook || identity;
 
   var tsProject = $.typescript.createProject({
@@ -108,6 +109,7 @@ exports.taskClientTypeScript = function(opt) {
     noEmitOnError: true,
     removeComments: true,
     strictNullChecks: strictNullChecks,
+    skipLibCheck: skipLibCheck,
     target: 'ES5',
     module: 'commonjs',
     moduleResolution: 'node',
@@ -165,6 +167,7 @@ exports.taskServerTypeScript = function(opt) {
   opt = opt || {};
   var declaration = opt.declaration || false;
   var strictNullChecks = opt.strictNullChecks || false;
+  var skipLibCheck = opt.skipLibCheck || false;
   var tsLintConfigHook = opt.tsLintConfigHook || identity;
 
   var tsProject = $.typescript.createProject({
@@ -175,6 +178,7 @@ exports.taskServerTypeScript = function(opt) {
     noEmitOnError: true,
     removeComments: true,
     strictNullChecks: strictNullChecks,
+    skipLibCheck: skipLibCheck,
     target: 'ES5',
     module: 'commonjs',
     moduleResolution: 'node',
@@ -227,7 +231,7 @@ var generateTester = function(path, parameters) {
       // gulp-mocha needs filepaths so you can't have any plugins before it
       .pipe($.mocha(parameters));
   };
-}
+};
 
 exports.taskCommonTest = function(parameters) {
   return generateTester('./build/common/**/*.mocha.js', parameters);
