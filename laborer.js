@@ -96,6 +96,7 @@ exports.taskHtml = function() {
 
 exports.taskClientTypeScript = function(opt) {
   opt = opt || {};
+  var dontCache = opt.dontCache || false;
   var declaration = opt.declaration || false;
   var strictNullChecks = opt.strictNullChecks || false;
   var skipLibCheck = opt.skipLibCheck || false;
@@ -124,8 +125,9 @@ exports.taskClientTypeScript = function(opt) {
       return str.replace('/build/tmp/', '/src/');
     }
 
-    var sourceFiles = gulp.src(['./src/{client,common}/**/*.{ts,tsx}'])
-      .pipe($.cached('client'))
+    var sourceFiles = gulp.src(['./src/{client,common}/**/*.{ts,tsx}']);
+    if (!dontCache) sourceFiles = sourceFiles.pipe($.cached('client'));
+    sourceFiles = sourceFiles
       .pipe($.tslint({configuration: tsLintConfigHook(tsLintConfig)}))
       .pipe($.tslint.report(
         gr.tscLintReporterFactory({
@@ -165,6 +167,7 @@ exports.taskClientTypeScript = function(opt) {
 
 exports.taskServerTypeScript = function(opt) {
   opt = opt || {};
+  var dontCache = opt.dontCache || false;
   var declaration = opt.declaration || false;
   var strictNullChecks = opt.strictNullChecks || false;
   var skipLibCheck = opt.skipLibCheck || false;
@@ -188,8 +191,9 @@ exports.taskServerTypeScript = function(opt) {
   return function() {
     var errorTexts = [];
 
-    var sourceFiles = gulp.src(['./src/{server,common}/**/*.ts'])
-      .pipe($.cached('server'))
+    var sourceFiles = gulp.src(['./src/{server,common}/**/*.ts']);
+    if (!dontCache) sourceFiles = sourceFiles.pipe($.cached('server'));
+    sourceFiles = sourceFiles
       .pipe($.tslint({configuration: tsLintConfigHook(tsLintConfig)}))
       .pipe($.tslint.report(
         gr.tscLintReporterFactory({
