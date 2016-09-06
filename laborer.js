@@ -282,7 +282,8 @@ function webpackCompilerFactory(opt) {
     module: {
       loaders: [
         { test: /\.svg$/, loaders: ['raw-loader', 'svgo-loader?useConfig=svgoConfig1'] },
-        { test: /\.css$/, loaders: ['style-loader', 'css-loader'] }
+        { test: /\.css$/, loaders: ['style-loader', 'css-loader'] },
+        { test: /\.json$/, loaders: ['json-loader'] }
       ]
     },
     svgoConfig1: {
