@@ -17,6 +17,9 @@
   "bugs": {
     "url": "https://github.com/implydata/laborer/issues"
   },
+  "scripts": {
+    "compile": "exit 0;"
+  },
   "homepage": "https://github.com/implydata/laborer#readme",
   "dependencies": {
     "autoprefixer": "6.4.1",
