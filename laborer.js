@@ -16,6 +16,7 @@ var typescript = require('typescript');
 var tsLintConfig = require('./tslint-rules');
 var sassLintRules = require('./sasslint-rules');
 var gr = require('./gulp-reporters');
+var sourcemaps = require('gulp-sourcemaps');
 
 var webpack = require("webpack");
 
@@ -139,7 +140,13 @@ exports.taskClientTypeScript = function(opt) {
 
     var typeFiles = gulp.src(['./typings/**/*.d.ts']);
 
-    var compiled = merge(sourceFiles, typeFiles)
+    var compiled = merge(sourceFiles, typeFiles);
+
+    if (opt.sourcemaps) {
+      compiled = compiled.pipe(sourcemaps.init());
+    }
+
+    compiled = compiled
       .pipe($.typescript(
         tsProject,
         undefined,
@@ -153,14 +160,7 @@ exports.taskClientTypeScript = function(opt) {
         })
       ));
 
-    if (declaration) {
-      return merge([
-        compiled.dts.pipe(gulp.dest('./build')),
-        compiled.js.pipe(gulp.dest('./build'))
-      ])
-    } else {
-      return compiled.pipe(gulp.dest('./build'));
-    }
+    return pipeBuildLastStep(compiled, declaration, opt.sourcemaps);
   };
 };
 
@@ -204,7 +204,13 @@ exports.taskServerTypeScript = function(opt) {
 
     var typeFiles = gulp.src(['./typings/**/*.d.ts']);
 
-    var compiled = merge(sourceFiles, typeFiles)
+    var compiled = merge(sourceFiles, typeFiles);
+
+    if (opt.sourcemaps) {
+      compiled = compiled.pipe(sourcemaps.init());
+    }
+
+    compiled = compiled
       .pipe($.typescript(
         tsProject,
         undefined,
@@ -217,21 +223,36 @@ exports.taskServerTypeScript = function(opt) {
         })
       ));
 
-    if (declaration) {
-      return merge([
-        compiled.dts.pipe(gulp.dest('./build')),
-        compiled.js.pipe(gulp.dest('./build'))
-      ])
-    } else {
-      return compiled.pipe(gulp.dest('./build'));
-    }
+    return pipeBuildLastStep(compiled, declaration, opt.sourcemaps);
   };
 };
 
+var pipeBuildLastStep = function (compiled, declaration, addSourcemaps) {
+  if (declaration) {
+    return merge([
+      compiled.dts.pipe(gulp.dest('./build')),
+      writeJs(compiled, addSourcemaps)
+    ])
+  } else {
+    if (addSourcemaps) {
+      compiled = compiled.pipe(sourcemaps.write('.'));
+    }
 
-var generateTester = function(path, parameters) {
-  return function() {
-    return gulp.src(path, {read: false})
+    return compiled.pipe(gulp.dest('./build'));
+  }
+}
+
+var writeJs = function (compiled, addSourcemaps) {
+  if (addSourcemaps) {
+    return compiled.js.pipe(sourcemaps.write('.')).pipe(gulp.dest('./build'));
+  }
+
+  return compiled.js.pipe(gulp.dest('./build'))
+}
+
+var generateTester = function (path, parameters) {
+  return function () {
+    return gulp.src(path, { read: false })
       // gulp-mocha needs filepaths so you can't have any plugins before it
       .pipe($.mocha(parameters));
   };
@@ -266,11 +287,21 @@ function webpackCompilerFactory(opt) {
   //{
   //  pivot: './build/client/pivot-entry.js'
   //}
+  var preLoaders = [];
+  var devtool = '';
+  if (opt.sourcemaps) {
+    preLoaders = [{
+      test: /\.js$/,
+      loader: "source-map-loader"
+    }];
+    devtool = 'source-map';
+  }
 
   return webpack({
     context: cwd,
     entry: entry,
     target: opt.target || 'web',
+    devtool: devtool,
     output: {
       path: path.join(cwd, "/build/public"),
       filename: "[name].js",
@@ -280,6 +311,7 @@ function webpackCompilerFactory(opt) {
       root: path.join(__dirname, "node_modules")
     },
     module: {
+      preLoaders: preLoaders,
       loaders: [
         { test: /\.svg$/, loaders: ['raw-loader', 'svgo-loader?useConfig=svgoConfig1'] },
         { test: /\.css$/, loaders: ['style-loader', 'css-loader'] },
