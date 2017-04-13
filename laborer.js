@@ -160,18 +160,7 @@ exports.taskClientTypeScript = function(opt) {
         })
       ));
 
-    if (declaration) {
-      return merge([
-        compiled.dts.pipe(gulp.dest('./build')),
-        writeJs(compiled, opt.sourcemaps)
-      ]);
-    } else {
-      if (opt.sourcemaps) {
-        compiled = compiled.pipe(sourcemaps.write('.'));
-      }
-
-      return compiled.pipe(gulp.dest('./build'));
-    }
+    return pipeBuildLastStep(compiled, declaration, opt.sourcemaps);
   };
 };
 
@@ -234,20 +223,24 @@ exports.taskServerTypeScript = function(opt) {
         })
       ));
 
-    if (declaration) {
-      return merge([
-        compiled.dts.pipe(gulp.dest('./build')),
-        writeJs(compiled, opt.sourcemaps)
-      ])
-    } else {
-      if (opt.sourcemaps) {
-        compiled = compiled.pipe(sourcemaps.write('.'));
-      }
-
-      return compiled.pipe(gulp.dest('./build'));
-    }
+    return pipeBuildLastStep(compiled, declaration, opt.sourcemaps);
   };
 };
+
+var pipeBuildLastStep = function (compiled, declaration, addSourcemaps) {
+  if (declaration) {
+    return merge([
+      compiled.dts.pipe(gulp.dest('./build')),
+      writeJs(compiled, addSourcemaps)
+    ])
+  } else {
+    if (addSourcemaps) {
+      compiled = compiled.pipe(sourcemaps.write('.'));
+    }
+
+    return compiled.pipe(gulp.dest('./build'));
+  }
+}
 
 var writeJs = function (compiled, addSourcemaps) {
   if (addSourcemaps) {
@@ -256,6 +249,7 @@ var writeJs = function (compiled, addSourcemaps) {
 
   return compiled.js.pipe(gulp.dest('./build'))
 }
+
 var generateTester = function (path, parameters) {
   return function () {
     return gulp.src(path, { read: false })
